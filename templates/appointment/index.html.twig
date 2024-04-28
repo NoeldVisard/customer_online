@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello! Let's appointment!{% endblock %}
+
+{% block body %}
+    <style>
+    </style>
+
+    <div class="content">
+        <form method="post">
+            <div class="appointment-field">
+                <div class="appointment-field--label">
+                    <label for="date">Дата</label>
+                </div>
+                <input type="date" id="date">
+            </div>
+            <div class="appointment-field">
+                <div class="appointment-field--label">
+                    <label for="time">Время</label>
+                </div>
+                <input type="time" id="time">
+            </div>
+            <div class="appointment-field">
+                <div class="appointment-field--label">
+                    <label for="service">Услуга</label>
+                </div>
+                <select id="service" name="service">
+                    {% for service in services %}
+                        <option value="{{ service.id }}">{{ service.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button class="button-submit-appointment" type="submit">
+                Забронировать
+            </button>
+        </form>
+    </div>
+{% endblock %}
+{% block stylesheets %}
+    <style>
+        .appointment-field--label {
+            display: inline-block;
+            min-width: 10%;
+        }
+
+        .button-submit-appointment {
+            background-color: white;
+            color: black;
+            border: 2px solid black;
+        }
+    </style>
+{% endblock %}

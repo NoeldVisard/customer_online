@@ -37,4 +37,15 @@ class ServiceService {
 
         return $settingsData;
     }
+
+    public function getServices(array $params)
+    {
+        return $this->serviceRepository->getServices([
+            'userId' => $params['userId']
+        ]);
+    }
+
+    public function appointment(array $appointmentData)
+    {
+    }
 }
