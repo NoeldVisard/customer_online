@@ -39,6 +39,7 @@
             </button>
         </div>
     </form>
+    {% include 'settings/service.html.twig' with {'services': settingsData.services} %}
 {% endblock %}
 {% block stylesheets %}
     <style>

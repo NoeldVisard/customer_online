@@ -24,6 +24,20 @@ class ServiceRepository extends ServiceEntityRepository
         $entityManager->flush();
     }
 
+    public function getServices(array $params)
+    {
+        $query = $this->createQueryBuilder('s');
+
+        if ($params['userId']) {
+            $query->andWhere('s.user = :userId')
+                ->setParameter('userId', $params['userId']);
+        }
+
+        return $query->orderBy('s.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Service[] Returns an array of Service objects
     //     */

@@ -26,4 +26,15 @@ class ServiceService {
 
         $this->serviceRepository->save($service);
     }
+
+    public function getSettingsData(): array
+    {
+        $settingsData = [];
+
+        $settingsData['services'] = $this->serviceRepository->getServices([
+            'userId' => $this->security->getUser()->getId()
+        ]);
+
+        return $settingsData;
+    }
 }

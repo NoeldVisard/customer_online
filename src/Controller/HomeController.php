@@ -25,9 +25,14 @@ class HomeController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $service->saveService($request->request->all());
-            return new Response('saved');
+            return $this->redirectToRoute('settings');
         }
-        return $this->render('settings/settings.html.twig');
+
+        $settingsData = $service->getSettingsData();
+
+        return $this->render('settings/settings.html.twig', [
+            'settingsData' => $settingsData,
+        ]);
     }
 
 
