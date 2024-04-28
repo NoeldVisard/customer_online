@@ -7,3 +7,15 @@ php bin/console doctrine:migrations:migrate
 php bin/console make:registration-form
 
 php bin/console make:security:form-login
+
+https://symfony.com/doc/current/security.html#logging-out
+Получить пользователя из AbstractController:
+$this->getUser();
+
+Получить пользователя из сервиса:
+use Symfony\Bundle\SecurityBundle\Security;
+$user = $this->security->getUser();
+
+Разрешить доступ только ролям:
+$this->denyAccessUnlessGranted('ROLE_ADMIN');
+
