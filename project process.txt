@@ -19,3 +19,6 @@ $user = $this->security->getUser();
 Разрешить доступ только ролям:
 $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
+php bin/console make:entity
+
+php bin/console cache:clear

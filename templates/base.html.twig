@@ -17,6 +17,11 @@
             min-height: 100%;
             margin-bottom: -40px;
         }
+
+        .content {
+            margin-left: 2%;
+            margin-right: 2%;
+        }
     </style>
 
     {% block javascripts %}
@@ -28,7 +33,9 @@
 
     {% include 'header.html.twig' %}
 
-    {% block body %}{% endblock %}
+    <div class="content">
+        {% block body %}{% endblock %}
+    </div>
 
     {% include 'footer.html.twig' %}
 </div>

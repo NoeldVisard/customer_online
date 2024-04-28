@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Настройки{% endblock %}
+
+{% block body %}
+    <form method="post" accept-charset="UTF-8">
+        {#        {% if error %} #}
+        {#            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div> #}
+        {#        {% endif %} #}
+
+        <h1 class="h3 mb-3 font-weight-normal">Настройки для {{ app.user.userIdentifier }}</h1>
+        <div class="services services-wrapper">
+            <h2>Услуги</h2>
+            <div class="new-service">
+                <h3>Создать новую услугу</h3>
+                <div class="service-field">
+                    <div class="service-field--label">
+                        <label for="service_name">Название</label>
+                    </div>
+                    <input name="name" type="text" placeholder="Портретная съёмка" id="service_name">
+                </div>
+                <div class="service-field">
+                    <div class="service-field--label">
+                        <label for="service_duration">Длительность</label>
+                    </div>
+                    <input name="duration" type="text" placeholder="(в минутах)"
+                           id="service_duration">
+                </div>
+                <div class="service-field">
+                    <div class="service-field--label">
+                        <label for="service_cost">Стоимость</label>
+                    </div>
+                    <input name="cost" type="text" placeholder="(в рублях)"
+                           id="service_cost">
+                </div>
+            </div>
+            <button class="btn btn-lg btn-primary" type="submit">
+                Сохранить
+            </button>
+        </div>
+    </form>
+{% endblock %}
+{% block stylesheets %}
+    <style>
+        .service-field--label {
+            display: inline-block;
+            min-width: 10%;
+        }
+    </style>
+{% endblock %}
