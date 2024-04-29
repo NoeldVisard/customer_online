@@ -14,7 +14,9 @@ class AppointmentController extends AbstractController
     public function index(int $userId, Request $request, ServiceService $service): Response
     {
         if ($request->isMethod('POST')) {
-            $service->appointment($request->request->all());
+            $service->saveAppointment($request->request->all());
+
+            return $this->redirectToRoute('appointment-success');
         }
 
         $services = $service->getServices(['userId' => $userId]);
@@ -22,5 +24,11 @@ class AppointmentController extends AbstractController
         return $this->render('appointment/index.html.twig', [
             'services' => $services,
         ]);
+    }
+
+    #[Route('/appointment-success', name: 'appointment-success')]
+    public function appointmentSuccess()
+    {
+        return $this->render('appointment/success.html.twig');
     }
 }

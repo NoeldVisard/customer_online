@@ -10,15 +10,27 @@
         <form method="post">
             <div class="appointment-field">
                 <div class="appointment-field--label">
+                    <label for="name">Ваше имя:</label>
+                </div>
+                <input name="name" type="text" id="name">
+            </div>
+            <div class="appointment-field">
+                <div class="appointment-field--label">
+                    <label for="phone">Телефон:</label>
+                </div>
+                <input name="phone" type="text" id="phone">
+            </div>
+            <div class="appointment-field">
+                <div class="appointment-field--label">
                     <label for="date">Дата</label>
                 </div>
-                <input type="date" id="date">
+                <input name="date" type="date" id="date">
             </div>
             <div class="appointment-field">
                 <div class="appointment-field--label">
                     <label for="time">Время</label>
                 </div>
-                <input type="time" id="time">
+                <input name="time" type="time" id="time">
             </div>
             <div class="appointment-field">
                 <div class="appointment-field--label">
@@ -29,6 +41,12 @@
                         <option value="{{ service.id }}">{{ service.name }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="appointment-field">
+                <div class="appointment-field--label">
+                    <label for="comment">Комментарий</label>
+                </div>
+                <input name="comment" type="text" id="comment">
             </div>
             <button class="button-submit-appointment" type="submit">
                 Забронировать
@@ -47,6 +65,11 @@
             background-color: white;
             color: black;
             border: 2px solid black;
+            margin-top: 1%;
+        }
+
+        .content {
+            margin-top: 1%;
         }
     </style>
 {% endblock %}
