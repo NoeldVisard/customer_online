@@ -26,11 +26,11 @@
 <header>
     {% if app.user %}
         <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+            Вы вошли под пользователем {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Выйти</a>
         </div>
     {% endif %}
     <div class="header-buttons">
-        <a href="#">Customers</a>
-        <a href="#">Settings</a>
+        <a href="{{ path('home') }}">Мои записи</a>
+        <a href="{{ path('settings') }}">Настройки</a>
     </div>
 </header>
