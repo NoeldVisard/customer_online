@@ -10,11 +10,13 @@
             padding: 10px;
             text-align: center;
         }
+
         .header-buttons {
             display: flex;
             justify-content: flex-end;
             margin-bottom: 10px;
         }
+
         .header-buttons a {
             color: white;
             margin-left: 10px;
@@ -28,9 +30,18 @@
         <div class="mb-3">
             Вы вошли под пользователем {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Выйти</a>
         </div>
+    {% else %}
+        <div class="mb-3">
+            Добро пожаловать в customer_online!
+        </div>
     {% endif %}
     <div class="header-buttons">
-        <a href="{{ path('home') }}">Мои записи</a>
-        <a href="{{ path('settings') }}">Настройки</a>
+        {% if app.user %}
+            <a href="{{ path('home') }}">Мои записи</a>
+            <a href="{{ path('settings') }}">Настройки</a>
+        {% else %}
+            <a href="{{ path('app_register') }}">Зарегистрироваться</a>
+            <a href="{{ path('app_login') }}">Авторизоваться</a>
+        {% endif %}
     </div>
 </header>
