@@ -3,17 +3,49 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+    <div class="container-fluid">
+        <div class="row justify-content-md-center">
+            <div class="col-md-4 col-sm-4 col-xs-12"></div>
+            <div class="col-md-4 col-sm-4 col-xs-12 rounded justify-content-center align-items-center registration-form">
+                <h1 class="h3 mb-3 font-weight-normal">Please register</h1>
 
-    {{ form_errors(registrationForm) }}
+                {{ form_errors(registrationForm) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+                {{ form_start(registrationForm) }}
+                {{ form_row(registrationForm.email, {
+                    'attr': {
+                        'class': 'form-control'
+                    }
+                }) }}
+                {{ form_row(registrationForm.plainPassword, {
+                    label: 'Password',
+                    attr: {
+                        class: 'form-control'
+                    }
+                }) }}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                <div class="form-check">
+                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(registrationForm.agreeTerms, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                    {{ form_errors(registrationForm.agreeTerms) }}
+                </div>
+
+                <div class="d-grid gap-2 my-3">
+                    <button class="btn btn-primary btn-block" type="submit">
+                        Register
+                    </button>
+                </div>
+                {{ form_end(registrationForm) }}
+            </div>
+            <div class="col-md-4 col-sm-4 col-xs-12"></div>
+        </div>
+    </div>
+{% endblock %}
+{% block stylesheets %}
+    <style>
+        .registration-form {
+            background-color: rgb(253, 253, 253);
+            margin-top: 15%;
+        }
+    </style>
 {% endblock %}
