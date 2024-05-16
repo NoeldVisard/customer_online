@@ -46,7 +46,7 @@ class HomeController extends AbstractController
             return $this->redirectToRoute('settings');
         }
 
-        $settingsData = $service->getSettingsData();
+        $settingsData = $service->getSettingsData($request);
 
         return $this->render('settings/settings.html.twig', [
             'settingsData' => $settingsData,

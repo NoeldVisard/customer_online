@@ -11,6 +11,7 @@ use App\Repository\ServiceRepository;
 use DateTimeImmutable;
 use phpDocumentor\Reflection\Types\This;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpFoundation\Request;
 
 class ServiceService {
     private Security $security;
@@ -42,13 +43,15 @@ class ServiceService {
         $this->serviceRepository->save($service);
     }
 
-    public function getSettingsData(): array
+    public function getSettingsData(Request $request): array
     {
         $settingsData = [];
 
         $settingsData['services'] = $this->serviceRepository->getServices([
             'userId' => $this->security->getUser()->getId()
         ]);
+        $settingsData['appointmentLink'] = $request->getSchemeAndHttpHost() . $request->getBaseUrl()
+            . '/appointment/' . $this->security->getUser()->getId();
 
         return $settingsData;
     }
