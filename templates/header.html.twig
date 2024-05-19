@@ -1,3 +1,5 @@
+{% set currentPath = app.request.pathInfo %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,17 +33,22 @@
             Вы вошли под пользователем {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Выйти</a>
         </div>
     {% else %}
-        <div class="mb-3">
+        <div class="mb-3 font-monospace">
             Добро пожаловать в customer_online!
         </div>
     {% endif %}
+    {% if app.user %}
     <div class="header-buttons">
-        {% if app.user %}
-            <a href="{{ path('home') }}">Мои записи</a>
-            <a href="{{ path('settings') }}">Настройки</a>
-        {% else %}
-            <a href="{{ path('app_register') }}">Зарегистрироваться</a>
-            <a href="{{ path('app_login') }}">Авторизоваться</a>
-        {% endif %}
+        <a href="{{ path('home') }}">Мои записи</a>
+        <a href="{{ path('settings') }}">Настройки</a>
+    </div>
+    {% elseif not currentPath starts with '/appointment/' %}
+    <div class="header-buttons">
+        <a href="{{ path('app_register') }}">Зарегистрироваться</a>
+        <a href="{{ path('app_login') }}">Авторизоваться</a>
+    </div>
+    {% else %}
+        <p class="font-monospace">Как вас величать?</p>
+    {% endif %}
     </div>
 </header>
