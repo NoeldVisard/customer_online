@@ -48,6 +48,27 @@
             </button>
         </div>
     </form>
+    <form method="post" action="/home/update-settings">
+        <div class="mt-4 mb-4">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                    Выберите дни ваших услуг
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <li><label class="dropdown-item"><input type="checkbox" value="0"> Понедельник</label></li>
+                    <li><label class="dropdown-item"><input type="checkbox" value="1"> Вторник</label></li>
+                    <li><label class="dropdown-item"><input type="checkbox" value="2"> Среда</label></li>
+                    <li><label class="dropdown-item"><input type="checkbox" value="3"> Четверг</label></li>
+                    <li><label class="dropdown-item"><input type="checkbox" value="4"> Пятница</label></li>
+                    <li><label class="dropdown-item"><input type="checkbox" value="5"> Суббота</label></li>
+                    <li><label class="dropdown-item"><input type="checkbox" value="6"> Воскресенье</label></li>
+                </ul>
+            </div>
+        </div>
+        <button class="button-submit-service" type="submit">
+            Сохранить
+        </button>
+    </form>
     {% include 'settings/service.html.twig' with {'services': settingsData.services} %}
     <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="live-toast" class="toast" aria-live="assertive" aria-atomic="true">
@@ -57,25 +78,43 @@
         </div>
     </div>
     <script>
-        const copyBlock = document.getElementById('appointment-link')
-        copyBlock.addEventListener('click', () => {
-            navigator.clipboard.writeText('{{ settingsData.appointmentLink }}').then(() => {
-                showToast('Ссылка скопирована!')
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyBlock = document.getElementById('appointment-link')
+            copyBlock.addEventListener('click', () => {
+                navigator.clipboard.writeText('{{ settingsData.appointmentLink }}').then(() => {
+                    showToast('Ссылка скопирована!')
+                })
             })
-        })
 
-        function showToast(message) {
-            const toastBody = document.querySelector('.toast-body')
-            console.log(toastBody)
-            toastBody.innerHTML = message
+            function showToast(message) {
+                const toastBody = document.querySelector('.toast-body')
+                console.log(toastBody)
+                toastBody.innerHTML = message
 
-            const liveToast = document.getElementById('live-toast')
-            liveToast.style.display = 'block'
+                const liveToast = document.getElementById('live-toast')
+                liveToast.style.display = 'block'
 
-            setTimeout(function() {
-                liveToast.style.display = 'none'
-            }, 2500);
-        }
+                setTimeout(function() {
+                    liveToast.style.display = 'none'
+                }, 2500);
+            }
+
+            const dropdownButton = document.getElementById('dropdownMenuButton');
+            const checkboxes = document.querySelectorAll('.dropdown-menu .dropdown .dropdown-menu .dropdown-item');
+
+            function updateButtonLabel() {
+                const selectedOptions = Array.from(checkboxes)
+                    .filter(checkbox => checkbox.checked)
+                    .map(checkbox => checkbox.parentNode.textContent.trim());
+                dropdownButton.textContent = selectedOptions.length ? selectedOptions.join(', ') : 'Выберите дни ваших услуг';
+            }
+
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateButtonLabel);
+            });
+
+            updateButtonLabel();
+        });
     </script>
 {% endblock %}
 {% block stylesheets %}
@@ -88,6 +127,11 @@
         .button-submit-service {
             background-color: #555555;
             color: white;
+        }
+
+        .dropdown-menu {
+            max-height: 300px;
+            overflow-y: auto;
         }
     </style>
 {% endblock %}
