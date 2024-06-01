@@ -57,6 +57,20 @@ class TelegramController extends AbstractController
 
                     $this->telegram->sendMessage($message['chat']['id'], 'Добро пожаловать! Выберите опцию:', null, false, null, $keyboard);
                     break;
+                // заглушка для презы
+                case 'Сколько времени у меня есть одеться перед съёмкой?':
+                    $this->telegram->sendMessage($message['chat']['id'], 'У вас есть 5 минут на сборы перед съёмкой. Но если вам нужно больше времени, сообщите об этом заранее', null, false, null, null);
+                    break;
+                case 'Сколько комнат в студии?':
+                    $this->telegram->sendMessage($message['chat']['id'], 'В студии две комнаты: в первой стены белого цвета, во второй одна стена синяя, другая белая, третья стена белая, с двумя окнами, к четвёртой стене прикреплены цветные рулоны, благодаря которым можно менять цвет фона', null, false, null, null);
+                    break;
+                case 'Есть ли дополнительный источник света?':
+                    $this->telegram->sendMessage($message['chat']['id'], 'Искусственный свет прилагается, включён в стоимость', null, false, null, null);
+                    break;
+                default:
+                    $this->telegram->sendMessage($message['chat']['id'], 'Я не совсем понял', null, false, null, null);
+                    break;
+                // заглушка для презы
             }
         }
 
