@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Enum\TelegramEnum;
 use App\Service\CustomBotApi;
+use App\Service\TelegramService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,10 +17,12 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 class TelegramController extends AbstractController
 {
     private $telegram;
+    private TelegramService $telegramService;
 
-    public function __construct(CustomBotApi $telegram)
+    public function __construct(CustomBotApi $telegram, TelegramService $telegramService)
     {
         $this->telegram = $telegram;
+        $this->telegramService = $telegramService;
     }
 
     /**
@@ -47,40 +50,21 @@ class TelegramController extends AbstractController
             $message = $update['callback_query']['data'];
         }
 
-        if ($telegramScenery === TelegramEnum::USER_MESSAGE) {
-            switch ($message['text']) {
-                case '/start':
-                    $keyboard = new InlineKeyboardMarkup([
-                        [['text' => 'Записаться к специалисту', 'callback_data' => 'openAppointment']],
-                        [['text' => 'Я специалист', 'callback_data' => 'login']],
-                    ]);
-
-                    $this->telegram->sendMessage($message['chat']['id'], 'Добро пожаловать! Выберите опцию:', null, false, null, $keyboard);
-                    break;
-                // заглушка для презы
-                case 'Сколько времени у меня есть одеться перед съёмкой?':
-                    $this->telegram->sendMessage($message['chat']['id'], 'У вас есть 5 минут на сборы перед съёмкой. Но если вам нужно больше времени, сообщите об этом заранее', null, false, null, null);
-                    break;
-                case 'Сколько комнат в студии?':
-                    $this->telegram->sendMessage($message['chat']['id'], 'В студии две комнаты: в первой стены белого цвета, во второй одна стена синяя, другая белая, третья стена белая, с двумя окнами, к четвёртой стене прикреплены цветные рулоны, благодаря которым можно менять цвет фона', null, false, null, null);
-                    break;
-                case 'Есть ли дополнительный источник света?':
-                    $this->telegram->sendMessage($message['chat']['id'], 'Искусственный свет прилагается, включён в стоимость', null, false, null, null);
-                    break;
-                default:
-                    $this->telegram->sendMessage($message['chat']['id'], 'Я не совсем понял', null, false, null, null);
-                    break;
-                // заглушка для презы
-            }
+        try {
+            $this->telegramService->handleMessage($update);
+        } catch (\Exception $e) {
+            return new Response('Error handling message: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+/*
         if ($telegramScenery === TelegramEnum::USER_CALLBACK) {
             $callbackQuery = $update['callback_query'];
             $data = $callbackQuery['data'];
 
             switch ($data) {
                 case 'openAppointment':
-                    $this->telegram->sendMessage($callbackQuery['message']['chat']['id'], 'You pressed ' . $callbackQuery['data']);
+//                    $this->telegram->sendMessage($callbackQuery['message']['chat']['id'], 'You pressed ' . $callbackQuery['data']);
+                    $this->telegramService->chooseSpecialist($callbackQuery);
                     break;
                 case 'login':
                     $this->telegram->sendMessage($callbackQuery['message']['chat']['id'], 'You pressed ' . $callbackQuery['data']);
@@ -93,7 +77,7 @@ class TelegramController extends AbstractController
 
                     $this->telegram->sendMessage($message['chat']['id'], 'Добро пожаловать! Выберите опцию:', null, false, null, $keyboard);
             }
-        }
+        }*/
 
         return new Response('OK');
     }
