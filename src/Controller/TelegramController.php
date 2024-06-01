@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Enum\TelegramEnum;
 use App\Service\CustomBotApi;
 use App\Service\TelegramService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,15 +38,6 @@ class TelegramController extends AbstractController
 
         if (!isset($update['message']) && !isset($update['callback_query'])) {
             return new Response('No message parameter in updates: ' . print_r($update, true), Response::HTTP_BAD_REQUEST);
-        }
-
-        $telegramScenery = TelegramEnum::ERROR;
-        if (isset($update['message'])) {
-            $telegramScenery = TelegramEnum::USER_MESSAGE;
-            $message = $update['message'];
-        } elseif (isset($update['callback_query'])) {
-            $telegramScenery = TelegramEnum::USER_CALLBACK;
-            $message = $update['callback_query']['data'];
         }
 
         try {
