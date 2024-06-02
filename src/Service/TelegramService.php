@@ -133,6 +133,19 @@ class TelegramService
 
     private function handleCallbackQuery(array $callbackQuery): void
     {
+        $chatId = $callbackQuery['message']['chat']['id'];
+        $callback = $callbackQuery['data'];
+        $allPossibleMessages = $this->telegramResponseRepository->findAll();
 
+        foreach ($allPossibleMessages as $possibleMessage) {
+            if ($callback === $possibleMessage->getAction()) {
+                $responseData = $possibleMessage->getResponse();
+
+                $this->telegramBot->sendMessage(
+                    $chatId,
+                    $this->getTextFromResponseData($responseData)
+                );
+            }
+        }
     }
 }
