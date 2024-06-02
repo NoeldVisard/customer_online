@@ -42,6 +42,7 @@ class TelegramController extends AbstractController
 
         try {
             $this->telegramService->handleMessage($update);
+            return new Response('OK');
         } catch (\Exception $e) {
             return new Response('Error handling message: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

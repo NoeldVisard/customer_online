@@ -2,7 +2,8 @@
 
 namespace App\Service;
 
-use TelegramBot\Api\BotApi;
+use App\Repository\TelegramResponseRepository;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
@@ -10,13 +11,16 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 class TelegramService
 {
     private CustomBotApi $telegramBot;
+    private TelegramResponseRepository $telegramResponseRepository;
+    private $userStates = [];
 
     /**
      * @param CustomBotApi $botApi
      */
-    public function __construct(CustomBotApi $botApi)
+    public function __construct(CustomBotApi $botApi, TelegramResponseRepository $telegramResponseRepository)
     {
         $this->telegramBot = $botApi;
+        $this->telegramResponseRepository = $telegramResponseRepository;
     }
 
     public function chooseSpecialist($callbackQuery): \TelegramBot\Api\Types\Message
@@ -42,7 +46,31 @@ class TelegramService
         $chatId = $message['chat']['id'];
         $text = $message['text'] ?? '';
 
-        if ($text === '/start') {
+        $allPossibleMessages = $this->telegramResponseRepository->findAll();
+
+        foreach ($allPossibleMessages as $possibleMessage) {
+            if ($text === $possibleMessage->getAction()) {
+                $responseData = $possibleMessage->getResponse();
+                $keyboard = $this->createKeyboard($responseData);
+
+                $this->telegramBot->sendMessage(
+                    $chatId,
+                    $this->getTextFromResponseData($responseData),
+                    null,
+                    false,
+                    null,
+                    $keyboard
+                );
+                return;
+            } else {
+                continue;
+            }
+        }
+
+        $this->telegramBot->sendMessage($message['chat']['id'], 'Я не совсем понял');
+        return;
+
+        /*if ($text === '/start') {
             $keyboard = new InlineKeyboardMarkup([
                 [['text' => 'Записаться к специалисту', 'callback_data' => 'openAppointment']],
                 [['text' => 'Я специалист', 'callback_data' => 'login']],
@@ -75,6 +103,32 @@ class TelegramService
                 // заглушка для презы
             }
         }
+        */
+    }
+
+    private function createKeyboard(array $buttons): InlineKeyboardMarkup
+    {
+        $inlineKeyboard = [];
+        foreach ($buttons as $button) {
+            if (isset($button['button_text'])) {
+                $buttonData['text'] = $button['button_text'];
+                $buttonData['callback_data'] = $button['callback_query'];
+                $inlineKeyboard[] = [$buttonData];
+            }
+        }
+
+        return new InlineKeyboardMarkup($inlineKeyboard);
+    }
+
+    private function getTextFromResponseData(array $responseData): string
+    {
+        foreach ($responseData as $response) {
+            if (isset($response['text'])) {
+                return $response['text'];
+            }
+        }
+
+        throw new NotFoundHttpException();
     }
 
     private function handleCallbackQuery(array $callbackQuery): void

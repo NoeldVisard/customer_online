@@ -35,3 +35,5 @@ ngrok http 8000
  Не понадобилось:
  // local:server:ca:install, server:ca:install                                  Create a local Certificate Authority for serving HTTPS
  // local:server:ca:uninstall, server:ca:uninstall                              Uninstall the local Certificate Authority
+Setup telegram webhook:
+https://api.telegram.org/bot7004915220:AAFqpoZZ9ILfNmc3nG9UEAADV6IvoXMeX-4/setWebhook?url=https://1a09-94-180-177-182.ngrok-free.app/telegram/webhook
