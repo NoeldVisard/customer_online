@@ -23,6 +23,9 @@ class TelegramResponse
     #[ORM\Column(type: Types::SMALLINT)]
     private ?int $type = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $handler = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +63,18 @@ class TelegramResponse
     public function setType(int $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getHandler(): ?string
+    {
+        return $this->handler;
+    }
+
+    public function setHandler(string $handler): static
+    {
+        $this->handler = $handler;
 
         return $this;
     }
