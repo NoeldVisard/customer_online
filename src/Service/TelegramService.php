@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\TelegramResponse;
 use App\Repository\TelegramResponseRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use TelegramBot\Api\Exception;
@@ -50,17 +51,9 @@ class TelegramService
 
         foreach ($allPossibleMessages as $possibleMessage) {
             if ($text === $possibleMessage->getAction()) {
-                $responseData = $possibleMessage->getResponse();
-                $keyboard = $this->createKeyboard($responseData);
+                $handler = $possibleMessage->getHandler();
+                $this->$handler($possibleMessage, $chatId);
 
-                $this->telegramBot->sendMessage(
-                    $chatId,
-                    $this->getTextFromResponseData($responseData),
-                    null,
-                    false,
-                    null,
-                    $keyboard
-                );
                 return;
             } else {
                 continue;
@@ -139,13 +132,49 @@ class TelegramService
 
         foreach ($allPossibleMessages as $possibleMessage) {
             if ($callback === $possibleMessage->getAction()) {
-                $responseData = $possibleMessage->getResponse();
+                $handler = $possibleMessage->getHandler();
+                $this->$handler($possibleMessage, $chatId);
 
-                $this->telegramBot->sendMessage(
-                    $chatId,
-                    $this->getTextFromResponseData($responseData)
-                );
+                return;
             }
         }
+    }
+
+    /**
+     * The method starts telegram customer_online
+     * @param TelegramResponse $telegramResponse
+     * @param int $chatId
+     * @return void
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    private function start(TelegramResponse $telegramResponse, int $chatId): void
+    {
+        $responseData = $telegramResponse->getResponse();
+        $keyboard = $this->createKeyboard($responseData);
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            $this->getTextFromResponseData($responseData),
+            null,
+            false,
+            null,
+            $keyboard
+        );
+    }
+
+    /**
+     * The method suggests writing the specialist's ID
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    private function findSpecialist(TelegramResponse $telegramResponse, int $chatId): void
+    {
+        $responseData = $telegramResponse->getResponse();
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            $this->getTextFromResponseData($responseData)
+        );
     }
 }
