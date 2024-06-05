@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\TelegramResponse;
+use App\Enum\TelegramStatusEnum;
 use App\Repository\TelegramResponseRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use TelegramBot\Api\Exception;
@@ -13,15 +14,20 @@ class TelegramService
 {
     private CustomBotApi $telegramBot;
     private TelegramResponseRepository $telegramResponseRepository;
-    private $userStates = [];
+    private TelegramStatusService $telegramStatusService;
 
     /**
      * @param CustomBotApi $botApi
      */
-    public function __construct(CustomBotApi $botApi, TelegramResponseRepository $telegramResponseRepository)
+    public function __construct(
+        CustomBotApi $botApi,
+        TelegramResponseRepository $telegramResponseRepository,
+        TelegramStatusService $telegramStatusService,
+    )
     {
         $this->telegramBot = $botApi;
         $this->telegramResponseRepository = $telegramResponseRepository;
+        $this->telegramStatusService = $telegramStatusService;
     }
 
     public function handleMessage(array $update): void
@@ -64,7 +70,7 @@ class TelegramService
             if ($text === $possibleMessage->getAction()) {
                 $handler = $possibleMessage->getHandler();
                 $this->$handler($possibleMessage, $chatId);
-                break;
+                return;
             }
         }
 
@@ -126,6 +132,8 @@ class TelegramService
      */
     private function findSpecialist(TelegramResponse $telegramResponse, int $chatId): void
     {
+        $this->telegramStatusService->writeTelegramStatus($chatId, TelegramStatusEnum::FIND_SPECIALIST);
+
         $responseData = $telegramResponse->getResponse();
 
         $this->telegramBot->sendMessage(

@@ -16,6 +16,26 @@ class TelegramStatusRepository extends ServiceEntityRepository
         parent::__construct($registry, TelegramStatus::class);
     }
 
+    public function save(TelegramStatus $telegramStatus): void
+    {
+        $entityManager = $this->getEntityManager();
+
+        $existingStatus = $this->findOneByChat($telegramStatus->getChat());
+
+        if ($existingStatus) {
+            $existingStatus->setStatus($telegramStatus->getStatus());
+        } else {
+            $entityManager->persist($telegramStatus);
+        }
+
+        $entityManager->flush();
+    }
+
+    public function findOneByChat(int $chat)
+    {
+        return $this->findOneBy(['chat' => $chat]);
+    }
+
     //    /**
     //     * @return TelegramStatus[] Returns an array of TelegramStatus objects
     //     */
