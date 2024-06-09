@@ -25,4 +25,9 @@ class TelegramStatusService
 
         $this->telegramStatusRepository->save($telegramStatus);
     }
+
+    public function getTelegramStatus(int $chat)
+    {
+        return $this->telegramStatusRepository->findOneByChat($chat);
+    }
 }

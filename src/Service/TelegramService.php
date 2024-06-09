@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Service;
 use App\Entity\TelegramResponse;
 use App\Enum\TelegramStatusEnum;
 use App\Repository\TelegramResponseRepository;
@@ -15,6 +16,7 @@ class TelegramService
     private CustomBotApi $telegramBot;
     private TelegramResponseRepository $telegramResponseRepository;
     private TelegramStatusService $telegramStatusService;
+    private ServiceService $serviceService;
 
     /**
      * @param CustomBotApi $botApi
@@ -23,11 +25,13 @@ class TelegramService
         CustomBotApi $botApi,
         TelegramResponseRepository $telegramResponseRepository,
         TelegramStatusService $telegramStatusService,
+        ServiceService $serviceService,
     )
     {
         $this->telegramBot = $botApi;
         $this->telegramResponseRepository = $telegramResponseRepository;
         $this->telegramStatusService = $telegramStatusService;
+        $this->serviceService = $serviceService;
     }
 
     public function handleMessage(array $update): void
@@ -74,6 +78,13 @@ class TelegramService
             }
         }
 
+        $status = ($this->getTelegramStatus($chatId))->getId();
+
+        if ($status == TelegramStatusEnum::FIND_SPECIALIST) {
+            $this->findSpecialistServices($text, $chatId);
+            return;
+        }
+
         $this->telegramBot->sendMessage($message['chat']['id'], 'Я не совсем понял');
     }
 
@@ -100,6 +111,11 @@ class TelegramService
         }
 
         throw new NotFoundHttpException();
+    }
+
+    private function getTelegramStatus(int $chatId)
+    {
+        return $this->telegramStatusService->getTelegramStatus($chatId);
     }
 
     /**
@@ -139,6 +155,40 @@ class TelegramService
         $this->telegramBot->sendMessage(
             $chatId,
             $this->getTextFromResponseData($responseData)
+        );
+    }
+
+    /**
+     * The method find specialist services and send it all by buttons
+     * @param int $specialistId
+     * @param int $chatId
+     * @return void
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    private function findSpecialistServices(int $specialistId, int $chatId): void
+    {
+        /** @var Service[] $services */
+        $services = $this->serviceService->getServices([
+           'userId' => $specialistId,
+        ]);
+
+        $dataForKeyboard = [];
+        foreach ($services as $service) {
+            $dataForKeyboard[] = [
+                'button_text' => $service->getName(),
+                'callback_query' => $service->getId(),
+            ];
+        }
+        $keyboard = $this->createKeyboard($dataForKeyboard);
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            'Выберите услугу:',
+            null,
+            false,
+            null,
+            $keyboard
         );
     }
 }
