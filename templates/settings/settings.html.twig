@@ -52,7 +52,7 @@
         <div class="mt-4 mb-4">
             <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                    Выберите дни ваших услуг
+                    Выберите дни вашей работы
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                     <li><label class="dropdown-item"><input type="checkbox" value="0"> Понедельник</label></li>
@@ -106,7 +106,7 @@
                 const selectedOptions = Array.from(checkboxes)
                     .filter(checkbox => checkbox.checked)
                     .map(checkbox => checkbox.parentNode.textContent.trim());
-                dropdownButton.textContent = selectedOptions.length ? selectedOptions.join(', ') : 'Выберите дни ваших услуг';
+                dropdownButton.textContent = selectedOptions.length ? selectedOptions.join(', ') : 'Выберите дни вашей работы';
             }
 
             checkboxes.forEach(checkbox => {
