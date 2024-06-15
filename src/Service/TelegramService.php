@@ -43,6 +43,10 @@ class TelegramService
         }
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
     private function handleCallbackQuery(array $callbackQuery): void
     {
         $chatId = $callbackQuery['message']['chat']['id'];
@@ -56,6 +60,13 @@ class TelegramService
 
                 return;
             }
+        }
+
+        $status = ($this->getTelegramStatus($chatId))->getStatus();
+
+        if ($status == TelegramStatusEnum::CHOOSE_SERVICE) {
+            $this->showPossibleTime((int) $callback, $chatId);
+            return;
         }
     }
 
@@ -81,7 +92,7 @@ class TelegramService
         $status = ($this->getTelegramStatus($chatId))->getId();
 
         if ($status == TelegramStatusEnum::FIND_SPECIALIST) {
-            $this->findSpecialistServices($text, $chatId);
+            $this->findSpecialistServices((int) $text, $chatId);
             return;
         }
 
@@ -168,6 +179,8 @@ class TelegramService
      */
     private function findSpecialistServices(int $specialistId, int $chatId): void
     {
+        $this->telegramStatusService->writeTelegramStatus($chatId, TelegramStatusEnum::CHOOSE_SERVICE);
+
         /** @var Service[] $services */
         $services = $this->serviceService->getServices([
            'userId' => $specialistId,
@@ -185,6 +198,44 @@ class TelegramService
         $this->telegramBot->sendMessage(
             $chatId,
             'Выберите услугу:',
+            null,
+            false,
+            null,
+            $keyboard
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    private function showPossibleTime(int $serviceId, $chatId): void
+    {
+        $this->telegramStatusService->writeTelegramStatus($chatId, TelegramStatusEnum::ASK_QUESTIONS);
+
+        // TD: use function createKeyboard and schedule of user. And to come up how to appoint correctly (by callback_data or by status)
+        $keyboard = new InlineKeyboardMarkup([
+            [['text' => '10:00', 'callback_data' => '10:00//' . $serviceId]],
+            [['text' => '10:30', 'callback_data' => '10:30//' . $serviceId]],
+            [['text' => '11:00', 'callback_data' => '11:00//' . $serviceId]],
+            [['text' => '11:30', 'callback_data' => '11:30//' . $serviceId]],
+            [['text' => '12:00', 'callback_data' => '12:00//' . $serviceId]],
+            [['text' => '12:30', 'callback_data' => '12:30//' . $serviceId]],
+            [['text' => '13:00', 'callback_data' => '13:00//' . $serviceId]],
+            [['text' => '13:30', 'callback_data' => '13:30//' . $serviceId]],
+            [['text' => '14:00', 'callback_data' => '14:00//' . $serviceId]],
+            [['text' => '14:30', 'callback_data' => '14:30//' . $serviceId]],
+            [['text' => '15:00', 'callback_data' => '15:00//' . $serviceId]],
+            [['text' => '15:30', 'callback_data' => '15:30//' . $serviceId]],
+            [['text' => '16:00', 'callback_data' => '16:00//' . $serviceId]],
+            [['text' => '16:30', 'callback_data' => '16:30//' . $serviceId]],
+            [['text' => '17:00', 'callback_data' => '17:00//' . $serviceId]],
+            [['text' => '17:30', 'callback_data' => '17:30//' . $serviceId]],
+        ]);
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            'Выберите время для записи:',
             null,
             false,
             null,
