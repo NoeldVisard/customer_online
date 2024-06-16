@@ -6,6 +6,7 @@ use App\Entity\Service;
 use App\Entity\TelegramResponse;
 use App\Enum\TelegramStatusEnum;
 use App\Repository\TelegramResponseRepository;
+use DateTime;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
@@ -64,9 +65,13 @@ class TelegramService
 
         $status = ($this->getTelegramStatus($chatId))->getStatus();
 
-        if ($status == TelegramStatusEnum::CHOOSE_SERVICE) {
-            $this->showPossibleTime((int) $callback, $chatId);
-            return;
+        switch ($status) {
+            case TelegramStatusEnum::CHOOSE_SERVICE:
+                $this->showPossibleTime((int) $callback, $chatId);
+                break;
+            case TelegramStatusEnum::CHOOSE_TIME:
+                $this->saveAppointment($callback, $chatId, $callbackQuery['from']);
+                $this->askQuestions($callback, $chatId);
         }
     }
 
@@ -211,7 +216,7 @@ class TelegramService
      */
     private function showPossibleTime(int $serviceId, $chatId): void
     {
-        $this->telegramStatusService->writeTelegramStatus($chatId, TelegramStatusEnum::ASK_QUESTIONS);
+        $this->telegramStatusService->writeTelegramStatus($chatId, TelegramStatusEnum::CHOOSE_TIME);
 
         // TD: use function createKeyboard and schedule of user. And to come up how to appoint correctly (by callback_data or by status)
         $keyboard = new InlineKeyboardMarkup([
@@ -240,6 +245,50 @@ class TelegramService
             false,
             null,
             $keyboard
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws \Exception
+     */
+    private function saveAppointment(string $appointmentData, int $chatId, array $from): void
+    {
+        $appointmentData = explode('//', $appointmentData);
+
+        $currentDateTime = new DateTime();
+        $nextDayDateTime = new DateTime($currentDateTime->format('Y-m-d') . ' ' . $appointmentData[0]);
+        $nextDayDateTime->modify('+1 day');
+        $appointmentDate = $nextDayDateTime->format('Y-m-d');
+        $appointmentTime = $nextDayDateTime->format('H:i');
+        // Here i don't need name & phone
+        $this->serviceService->saveAppointment([
+            'date' => $appointmentDate,
+            'time' => $appointmentTime,
+            'phone' => $from['username'],
+            'name' => $from['first_name'] . ' ' . $from['last_name'],
+            'service' => $appointmentData[1],
+            'comment' => $this->serviceService->getServices(['id' => $appointmentData[1]])[0]->getName(),
+        ]);
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            'Вы успешно записаны!',
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    private function askQuestions(string $appointmentData, int $chatId): void
+    {
+        $this->telegramStatusService->writeTelegramStatus($chatId, TelegramStatusEnum::ASK_QUESTIONS);
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            'Если у вас есть вопросы, можете задать их в чате.',
         );
     }
 }

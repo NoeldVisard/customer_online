@@ -6,5 +6,6 @@ enum TelegramStatusEnum
 {
     const FIND_SPECIALIST = 1;
     const CHOOSE_SERVICE = 2;
-    const ASK_QUESTIONS = 3;
+    const CHOOSE_TIME = 3;
+    const ASK_QUESTIONS = 4;
 }

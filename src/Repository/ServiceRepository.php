@@ -28,7 +28,12 @@ class ServiceRepository extends ServiceEntityRepository
     {
         $query = $this->createQueryBuilder('s');
 
-        if ($params['userId']) {
+        if (isset($params['id'])) {
+            $query->andWhere('s.id = :id')
+                ->setParameter('id', $params['id']);
+        }
+
+        if (isset($params['userId'])) {
             $query->andWhere('s.user = :userId')
                 ->setParameter('userId', $params['userId']);
         }

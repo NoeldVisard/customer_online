@@ -58,9 +58,7 @@ class ServiceService {
 
     public function getServices(array $params)
     {
-        return $this->serviceRepository->getServices([
-            'userId' => $params['userId']
-        ]);
+        return $this->serviceRepository->getServices($params);
     }
 
     public function saveAppointment(array $appointmentData): void
