@@ -18,6 +18,9 @@ class TelegramService
     private TelegramResponseRepository $telegramResponseRepository;
     private TelegramStatusService $telegramStatusService;
     private ServiceService $serviceService;
+    private ClientService $clientService;
+    private AppointmentService $appointmentService;
+    private GigaChatService $gigaChatService;
 
     /**
      * @param CustomBotApi $botApi
@@ -27,12 +30,18 @@ class TelegramService
         TelegramResponseRepository $telegramResponseRepository,
         TelegramStatusService $telegramStatusService,
         ServiceService $serviceService,
+        ClientService $clientService,
+        AppointmentService $appointmentService,
+        GigaChatService $gigaChatService,
     )
     {
         $this->telegramBot = $botApi;
         $this->telegramResponseRepository = $telegramResponseRepository;
         $this->telegramStatusService = $telegramStatusService;
         $this->serviceService = $serviceService;
+        $this->clientService = $clientService;
+        $this->appointmentService = $appointmentService;
+        $this->gigaChatService = $gigaChatService;
     }
 
     public function handleMessage(array $update): void
@@ -94,11 +103,15 @@ class TelegramService
             }
         }
 
-        $status = ($this->getTelegramStatus($chatId))->getId();
+        $status = ($this->getTelegramStatus($chatId))->getStatus();
 
-        if ($status == TelegramStatusEnum::FIND_SPECIALIST) {
-            $this->findSpecialistServices((int) $text, $chatId);
-            return;
+        switch ($status) {
+            case TelegramStatusEnum::CHOOSE_SERVICE:
+                $this->findSpecialistServices((int)$text, $chatId);
+                return;
+            case TelegramStatusEnum::ASK_QUESTIONS:
+                $this->askQuestion($text, $chatId, $message['chat']['username']);
+                return;
         }
 
         $this->telegramBot->sendMessage($message['chat']['id'], 'Я не совсем понял');
@@ -207,6 +220,28 @@ class TelegramService
             false,
             null,
             $keyboard
+        );
+    }
+
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     */
+    private function askQuestion(string $question, int $chatId, string $username): void
+    {
+        $client = $this->clientService->find([
+            'phone' => $username,
+        ]);
+        $lastAppointment = $this->appointmentService->findLastAppointment([
+            'clientId' => $client[0]->getId(),
+        ]);
+        $serviceDescription = $lastAppointment->getService()->getDescription();
+
+        $answer = $this->gigaChatService->askQuestion($question, $serviceDescription);
+
+        $this->telegramBot->sendMessage(
+            $chatId,
+            $answer
         );
     }
 

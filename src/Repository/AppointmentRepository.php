@@ -24,6 +24,21 @@ class AppointmentRepository extends ServiceEntityRepository
         $entityManager->flush();
     }
 
+    public function findLastAppointment(array $params)
+    {
+        $query = $this->createQueryBuilder('a');
+
+        if (isset($params['clientId'])) {
+            $query->andWhere('a.client = :client')
+                ->setParameter('client', $params['clientId']);
+        }
+
+        return $query->orderBy('a.data', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     //    /**
     //     * @return Appointment[] Returns an array of Appointment objects
     //     */

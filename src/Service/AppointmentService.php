@@ -28,5 +28,10 @@ class AppointmentService
         }, $appointments);
     }
 
+    public function findLastAppointment($params)
+    {
+        return $this->appointmentRepository->findLastAppointment($params);
+    }
+
 
 }
