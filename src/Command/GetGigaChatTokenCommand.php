@@ -47,25 +47,34 @@ class GetGigaChatTokenCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $uuid = bin2hex(random_bytes(16)); // Generate a unique request ID
-
-        $client = new \http\Client();
         $headers = [
             'Content-Type' => 'application/x-www-form-urlencoded',
             'Accept' => 'application/json',
             'RqUID' => '13b26ad8-a12d-44fb-989d-df0908e37e3c',
             'Authorization' => 'Basic YTZlOWJiZDEtZjMwMy00N2I4LTgwMDAtNWJmZDYzYmU1ZmVlOjAxOTA1Mjc3LTM1OGItNDUxMi1iMmFlLWQwMjViZTgwNzMwNw=='
         ];
-        $options = [
-            'form_params' => [
-                'scope' => 'GIGACHAT_API_PERS'
-            ]];
-        $request = new Request('POST', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth', $headers);
-        $res = $client->sendAsync($request, $options)->wait();
 
-        $io->success(sprintf('Request successful! Status code: %d', $res->getStatusCode()));
-        $io->writeln('Response content: ' . $res->getBody()->getContents());
+        $body = 'scope=GIGACHAT_API_PERS';
+
+        try {
+            $response = $this->httpClient->request('POST', 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth', [
+                'headers' => $headers,
+                'body' => $body,
+            ]);
+
+            $statusCode = $response->getStatusCode();
+            $content = $response->getContent();
+
+            if ($statusCode === 200) {
+                $io->success('Request successful!');
+                $io->writeln('Response content: ' . $content);
+            } else {
+                $io->error('Request failed with status code: ' . $statusCode);
+                $io->writeln('Response content: ' . $content);
+            }
+        } catch (\Exception $e) {
+            $io->error('An error occurred: ' . $e->getMessage());
+        }
 
         return Command::SUCCESS;
     }
